@@ -1,8 +1,19 @@
 # Claude Desktop Model Proxy
 
-让 Claude Desktop 使用任意第三方模型的本地代理。Claude Desktop 强制校验模型名必须为标准 Claude 模型名（如 `claude-sonnet-4-6`），本代理将其映射到 DeepSeek、Moonshot、阿里百炼等提供商的模型上。
+让 Claude Desktop 使用任意第三方模型的本地代理。
 
-核心能力：
+## 背景
+
+从 Claude Desktop **1.7196.0 (2dbd78) 2026-05-12T05:34:40.000Z** 版本开始，官方加强了模型名称校验——只有在 Anthropic 官网真实存在的 Claude 模型名（如 `claude-sonnet-4-6`）才会被发送请求。此前可以通过给自定义模型加 `claude-` 前缀欺骗客户端的方案彻底失效。
+
+本代理采用"躺平"策略——顺着 Claude Desktop 的校验逻辑走：
+- 在 Claude Desktop 配置中填入**真实的 Claude 模型名**（通过校验）
+- 请求到达本代理后，将模型名替换为**实际的第三方模型名**，转发到对应提供商的 API
+- 响应返回时再恢复原始 Claude 模型名，Claude Desktop 无感知
+
+这样既不修改 Claude Desktop 本身，又能将请求无缝路由到 DeepSeek、Moonshot、阿里百炼等任意提供商。
+
+## 核心能力
 - **模型名映射** — 标准 Claude 名 → 任意提供商模型名
 - **多提供商路由** — 不同模型自动路由到不同 base URL + API key
 - **格式转换** — Anthropic Messages API ↔ OpenAI Chat Completions API
